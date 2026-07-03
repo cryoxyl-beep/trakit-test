@@ -145,7 +145,7 @@ export default function Watchlist() {
               const rating = ratings[item.tmdbId]?.rating || 0;
 
               return (
-                <tr key={item.id} className="group hover:bg-zinc-50/80 dark:hover:bg-zinc-900/50 transition-colors">
+                <tr key={item.tmdbId} className="group hover:bg-zinc-50/80 dark:hover:bg-zinc-900/50 transition-colors">
                   <td className="px-6 py-3">
                     <div className="flex items-center gap-4">
                       {title.posterUrl ? (

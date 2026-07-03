@@ -122,13 +122,25 @@ If the user asks to add something vague, search TMDB first and ask for clarifica
 Current Watchlist:
 ${JSON.stringify(userWatchlist || [], null, 2)}`;
 
-      const formattedMessages = messages.map((m: any) => ({
-        role: m.role === 'assistant' ? 'model' : m.role,
-        parts: [{ text: m.content || "" }] // handle empty string if only tool call
-      }));
+      console.log("[DEBUG] GEMINI_API_KEY is present:", !!process.env.GEMINI_API_KEY);
+
+      const filtered = messages.filter((m: any) => m.role !== 'system');
+      const formattedMessages: any[] = [];
+      
+      for (const m of filtered) {
+        const role = m.role === 'assistant' ? 'model' : 'user';
+        if (formattedMessages.length > 0 && formattedMessages[formattedMessages.length - 1].role === role) {
+           formattedMessages[formattedMessages.length - 1].parts[0].text += "\n\n" + (m.content || "");
+        } else {
+           formattedMessages.push({
+             role,
+             parts: [{ text: m.content || "" }]
+           });
+        }
+      }
 
       const chat = ai.chats.create({
-        model: "gemini-2.5-flash",
+        model: "gemini-2.5-flash-lite",
         config: {
           systemInstruction,
           tools: [
@@ -287,8 +299,8 @@ ${JSON.stringify(userWatchlist || [], null, 2)}`;
         recommendations
       });
     } catch (e: any) {
-      console.error(e);
-      res.status(500).json({ error: e.message });
+      console.error("[DEBUG] /api/chat error:", e);
+      res.status(500).json({ error: e.message || "Unknown error" });
     }
   });
 

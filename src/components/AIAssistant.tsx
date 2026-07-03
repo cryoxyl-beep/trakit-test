@@ -96,12 +96,13 @@ export default function AIAssistant() {
       }
       
       setLoading(false);
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      console.error("[DEBUG] Chat UI Error:", error);
+      const isOverloaded = error.message && (error.message.includes('503') || error.message.includes('high demand') || error.message.includes('UNAVAILABLE'));
       setMessages(prev => [...prev, {
         id: Date.now().toString(),
         role: 'system',
-        content: "Error communicating with AI Assistant."
+        content: `Error: ${error.message || "Unknown error occurred"}`
       }]);
       setLoading(false);
     }
