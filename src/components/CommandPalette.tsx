@@ -13,13 +13,22 @@ export default function CommandPalette() {
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() === 'k' && e.altKey) {
+      if (e.code === 'KeyK' && e.altKey) {
         e.preventDefault();
         setOpen((open) => !open);
       }
     };
     document.addEventListener('keydown', down);
-    return () => document.removeEventListener('keydown', down);
+
+    const handleOpenSearch = () => {
+      setOpen(true);
+    };
+    window.addEventListener('open-search', handleOpenSearch);
+
+    return () => {
+      document.removeEventListener('keydown', down);
+      window.removeEventListener('open-search', handleOpenSearch);
+    };
   }, []);
 
   useEffect(() => {

@@ -53,7 +53,14 @@ export default function Watchlist() {
             {filteredItems.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-6 py-12 text-center text-zinc-400">
-                  No items found. Press <kbd className="font-mono bg-zinc-100 px-1.5 py-0.5 rounded text-xs border border-zinc-200">Alt+K</kbd> to add something.
+                  No items found. Press{" "}
+                  <button
+                    onClick={() => window.dispatchEvent(new CustomEvent('open-search'))}
+                    className="font-mono bg-zinc-100 px-1.5 py-0.5 rounded text-xs border border-zinc-200 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-800 transition-all cursor-pointer inline-flex items-center gap-1"
+                  >
+                    Alt+K
+                  </button>{" "}
+                  to add something.
                 </td>
               </tr>
             ) : null}

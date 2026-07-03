@@ -15,10 +15,13 @@ export default function Navbar() {
           Watchlist
         </Link>
         <div className="flex items-center gap-4 text-sm font-medium text-zinc-500">
-          <div className="hidden sm:flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-zinc-50 border border-zinc-100 text-zinc-400">
+          <button 
+            onClick={() => window.dispatchEvent(new CustomEvent('open-search'))}
+            className="flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-zinc-50 border border-zinc-100 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 transition-all cursor-pointer"
+          >
             <Search size={14} />
-            <span className="text-xs">Alt + K</span>
-          </div>
+            <span className="text-xs hidden sm:inline">Alt + K</span>
+          </button>
           <Link to="/profile" className="hover:text-zinc-900 transition-colors flex items-center gap-2">
             <User size={16} />
             <span className="hidden sm:inline">{user?.displayName || 'Profile'}</span>
