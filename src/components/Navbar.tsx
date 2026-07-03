@@ -24,7 +24,7 @@ export default function Navbar() {
           </button>
           <Link to="/profile" className="hover:text-zinc-900 transition-colors flex items-center gap-2">
             <User size={16} />
-            <span className="hidden sm:inline">{user?.displayName || 'Profile'}</span>
+            <span className="hidden sm:inline">{user?.isAnonymous ? 'Guest' : (user?.displayName || 'Profile')}</span>
           </Link>
           <button onClick={logout} className="hover:text-zinc-900 transition-colors flex items-center gap-2">
             <LogOut size={16} />

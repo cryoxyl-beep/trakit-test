@@ -1,5 +1,5 @@
 export type TitleType = 'movie' | 'tv' | 'anime';
-export type WatchStatus = 'to-watch' | 'watched';
+export type WatchStatus = 'to-watch' | 'watched' | 'watching' | 'dropped' | 'on-hold';
 
 export interface Title {
   tmdbId: number;
@@ -27,6 +27,15 @@ export interface Rating {
   rating: number; // 0.5 to 5
   note?: string;
   ratedAt: number; // timestamp
+}
+
+export interface AppUser {
+  uid: string;
+  displayName: string | null;
+  email: string | null;
+  photoURL: string | null;
+  isAnonymous: boolean;
+  isGuest: boolean;
 }
 
 export interface UserProfile {

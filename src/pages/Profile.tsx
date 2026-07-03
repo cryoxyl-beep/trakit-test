@@ -20,12 +20,12 @@ export default function Profile() {
           <img src={user.photoURL} alt={user.displayName || 'User'} className="w-20 h-20 rounded-full border border-zinc-200 shadow-sm" />
         ) : (
           <div className="w-20 h-20 bg-zinc-100 rounded-full flex items-center justify-center text-xl font-medium text-zinc-400 border border-zinc-200 shadow-sm">
-            {user?.displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase()}
+            {user?.isAnonymous ? 'G' : (user?.displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U')}
           </div>
         )}
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">{user?.displayName || 'Profile'}</h1>
-          <p className="text-zinc-500">{user?.email}</p>
+          <h1 className="text-3xl font-semibold tracking-tight">{user?.isAnonymous ? 'Guest' : (user?.displayName || 'Profile')}</h1>
+          <p className="text-zinc-500">{user?.isAnonymous ? 'Guest Account' : user?.email}</p>
         </div>
       </div>
 
