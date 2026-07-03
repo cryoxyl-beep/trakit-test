@@ -3,6 +3,7 @@ import { Command } from 'cmdk';
 import { useWatchlist } from '../hooks/useWatchlist';
 import { Title } from '../types';
 import { Search, Loader2 } from 'lucide-react';
+import { tmdbService, getImageUrl } from '../lib/tmdbService';
 
 export default function CommandPalette() {
   const [open, setOpen] = useState(false);
@@ -39,8 +40,7 @@ export default function CommandPalette() {
     const delay = setTimeout(async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-        const data = await res.json();
+        const data = await tmdbService.searchMulti(query);
         if (data.results) {
           const mapped = data.results
             .filter((item: any) => item.media_type === 'movie' || item.media_type === 'tv')
@@ -48,7 +48,7 @@ export default function CommandPalette() {
               tmdbId: item.id,
               name: item.title || item.name,
               type: item.media_type,
-              posterUrl: item.poster_path ? `https://image.tmdb.org/t/p/w200${item.poster_path}` : null,
+              posterUrl: getImageUrl(item.poster_path, "w342"),
               genres: [],
               releaseYear: (item.release_date || item.first_air_date) ? parseInt((item.release_date || item.first_air_date).substring(0, 4)) : null,
               overview: item.overview || ''

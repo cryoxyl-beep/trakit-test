@@ -3,51 +3,99 @@ import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 
+const TMDB_BASE_URL = "https://api.themoviedb.org/3";
+
+async function fetchFromTMDB(endpoint: string, queryParams: Record<string, string> = {}) {
+  const TMDB_API_KEY = process.env.TMDB_API_KEY;
+  if (!TMDB_API_KEY) {
+    throw new Error("TMDB_API_KEY is not configured in environment variables.");
+  }
+
+  const params = new URLSearchParams({
+    api_key: TMDB_API_KEY.trim(),
+    ...queryParams,
+  });
+
+  const url = `${TMDB_BASE_URL}${endpoint}?${params.toString()}`;
+  
+  const response = await fetch(url, {
+    headers: { "Content-Type": "application/json" },
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`TMDB API error (${response.status}): ${errText}`);
+  }
+
+  return response.json();
+}
+
 async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  // API routes
-  app.get("/api/search", async (req, res) => {
+  // TMDB API routes
+  app.get("/api/tmdb/search", async (req, res) => {
     const query = req.query.q as string;
-    if (!query) {
-      return res.status(400).json({ error: "Query is required" });
-    }
+    if (!query) return res.status(400).json({ error: "Query is required" });
     try {
-      const TMDB_API_KEY = process.env.TMDB_API_KEY;
-      if (!TMDB_API_KEY) {
-        console.error("TMDB_API_KEY is not configured in the environment variables.");
-        return res.status(500).json({ error: "TMDB_API_KEY is not configured in environment variables." });
-      }
-
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
-      
-      let url = `https://api.themoviedb.org/3/search/multi?query=${encodeURIComponent(query)}`;
-      
-      // Auto-detect if user provided a v4 API Read Access Token (JWT starting with eyJ) or a standard v3 API Key
-      if (TMDB_API_KEY.trim().startsWith("eyJ") || TMDB_API_KEY.trim().length > 60) {
-        headers["Authorization"] = `Bearer ${TMDB_API_KEY.trim()}`;
-        console.log(`Searching TMDB for "${query}" using v4 Read Access Token (JWT)...`);
-      } else {
-        url += `&api_key=${TMDB_API_KEY.trim()}`;
-        console.log(`Searching TMDB for "${query}" using v3 API Key...`);
-      }
-
-      const response = await fetch(url, { headers });
-      
-      if (!response.ok) {
-        const errText = await response.text();
-        console.error(`TMDB API returned error status ${response.status}:`, errText);
-        return res.status(response.status).json({ error: `TMDB API error: ${errText}` });
-      }
-
-      const data = await response.json();
+      const data = await fetchFromTMDB("/search/multi", { query });
       res.json(data);
     } catch (e: any) {
-      console.error("Failed to fetch from TMDB:", e);
-      res.status(500).json({ error: "Failed to fetch from TMDB", details: e.message });
+      console.error(e);
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.get("/api/tmdb/details", async (req, res) => {
+    const id = req.query.id as string;
+    const type = req.query.type as string; // 'movie' or 'tv'
+    if (!id || !type) return res.status(400).json({ error: "id and type are required" });
+    try {
+      const data = await fetchFromTMDB(`/${type}/${id}`);
+      res.json(data);
+    } catch (e: any) {
+      console.error(e);
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.get("/api/tmdb/similar", async (req, res) => {
+    const id = req.query.id as string;
+    const type = req.query.type as string;
+    if (!id || !type) return res.status(400).json({ error: "id and type are required" });
+    try {
+      const data = await fetchFromTMDB(`/${type}/${id}/similar`);
+      res.json(data);
+    } catch (e: any) {
+      console.error(e);
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.get("/api/tmdb/recommendations", async (req, res) => {
+    const id = req.query.id as string;
+    const type = req.query.type as string;
+    if (!id || !type) return res.status(400).json({ error: "id and type are required" });
+    try {
+      const data = await fetchFromTMDB(`/${type}/${id}/recommendations`);
+      res.json(data);
+    } catch (e: any) {
+      console.error(e);
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // Legacy route for compatibility with unmodified components
+  app.get("/api/search", async (req, res) => {
+    const query = req.query.q as string;
+    if (!query) return res.status(400).json({ error: "Query is required" });
+    try {
+      const data = await fetchFromTMDB("/search/multi", { query });
+      res.json(data);
+    } catch (e: any) {
+      console.error(e);
+      res.status(500).json({ error: e.message });
     }
   });
 
