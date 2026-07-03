@@ -1,0 +1,6 @@
+{
+  "name": "Watchlist",
+  "description": "A personal movie and TV show watchlist tracker styled like Notion.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
